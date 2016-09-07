@@ -1,5 +1,8 @@
 N5MON Simple Monitoring and Maintenance Tool.
-(c)2016 N5 Networks
+2016 N5 Networks
+Licensed under the GPL v2.0
+http://dev.n5net.com
+support@n5net.com
 
 requirements: PHP 5.4.x or newer, Curl, ClamAV (for virus scanning).
 
