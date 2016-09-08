@@ -7,18 +7,19 @@
 		Each option is documented.  If you need help visit http://support.n5net.com.
 */
 
-
-
 	// SERVER NAME /////////////////////////////////////////////////////////////////////////////
 	/* 	This is used to identify the server in alerts and is used to name backup archives.	*/
 	$GLOBALS['server'] = "My Server";
+	
+
+	// Path to the n5mon directory
+	$GLOBALS['n5mon_path'] = "/home/n5net/n5mon/";	
 
 
 	// NOTIFICATION EMAILS	///////////////////////////////////////////////////////////////////
 	$GLOBALS['sms_email'] = "5555551212@tmomail.net";  // This is simply a secondary email, I use an email to sms gateway
 	$GLOBALS['alert_email'] = "me@dmail.com";
 	$GLOBALS['helpdesk_email'] = "helpdesk@domain.com";
-
 	
 	
 	// MINIMUM DISK SPACE IN GB	////////////////////////////////////////////////////////////////
@@ -35,11 +36,9 @@
 		Example 'WebServer' => 'httpd'
 	*/
 	$processes = array(
-			'vpn'=>'n5vpn',
 			'web'=>'apache2',
 			'ftp'=>'proftpd',			
 			'mysql'=>'mysql',
-			'smtp'=>'smtp'			
 			);
 			
 	
@@ -51,7 +50,6 @@
 		Example 'WebServer' => 'service restart httpd'
 	*/
 	$rprocesses = array(
-			'vpn'=>'/etc/init.d/proftpd status;',
 			'web'=>'/etc/init.d/apache2 stop;/etc/init.d/apache2 start',
 			'ftp'=>'/etc/init.d/proftpd stop;/etc/init.d/proftpd start',			
 			'mysql'=>'/etc/init.d/mysql stop;/etc/init.d/mysql start',
@@ -69,8 +67,8 @@
 			'FriendlyName' => 'Path-to-scan'
 	*/
 	$scan_dirs = array(
-			'web'=>'/var/logs/',
-			'web'=>'/home/'
+			'web'=>'/var/www/',
+			'homes'=>'/home/'
 			);
 	// If a virus is found send an email to the helpdesk address?
 	$GLOBALS['virus_helpdesk'] = 1;		
@@ -83,7 +81,7 @@
 			'FriendlyName' => 'Path-to-backup'
 	*/	
 	$backup_dirs = array(
-			'web'=>'/home/',
+			'web'=>'/var/home/',
 			'apachecfgs'=>'/etc/apache2/sites-enabled/',
 			);
 			
@@ -99,11 +97,17 @@
 	$GLOBALS['backup_dir'] = "/backups/sites/";
 	$GLOBALS['dbbackup_dir'] = "/backups/db/";
 	
-	
 	// HOW MANY DAYS TO KEEP BACKUPS? ////////////////////////////////////////////////////////////////
 	$GLOBALS['backup_days'] = "7";
 	$GLOBALS['dbbackup_days'] = "7";	
 	
+	/* LOGGING */
+	// This will write to a logfile whenever a service is down for later analysis.  Leave blank to not write a logfile.
+	$GLOBALS['service_log'] = '';
+	
+	// This will write to a logfile whenever load average is above specified limits stating the load avg, time and date 
+	// for later analysis.  Leave blank to not write a logfile.
+	$GLOBALS['load_log'] = '';
 	
 	// 	DATABASE CONNECTION //////////////////////////////////////////////////////////////////////
 	$GLOBALS['db_host'] = "localhost";

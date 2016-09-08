@@ -3,18 +3,17 @@
 
 include_once("n5mon-config.php");		
 
-chdir(realpath(dirname(__FILE__)));  // fix for alerts.dat path issue?
-
 array_shift($argv);
 $action = $argv[0];
 $id = $argv[1];
 	echo "\n";			
 	echo "N5 Networks System Monitor\n";		
-	echo "Version 1.1r12\n";		
+	echo "Version 1.1r13\n";		
 	echo "Low overhead all purpose system monitor and maintenance tool\n";		
 	echo "\n";		
-	echo "(c)2016 Brian Shaffer / N5 Networks\n";		
+	echo "2016 Brian Shaffer / N5 Networks\n";		
 	echo "brian@n5net.com\n";		
+	echo "Licensed under the GPL v2.0\n";		
 	echo "\n";		
 
 	if (!$action) 
@@ -139,6 +138,7 @@ if($action == "monitor")
 		if(!$pids[2]) {
 			// attempt to restart then check again
 			echo "   FAILED! service " . $x . " (" . $x_value . ") is NOT running, Attempting restart.\n";
+			write_service_log($x,$_value);
 			exec($rprocesses[$x], $null);
 			exec("sleep 10", $null);
 			exec("ps aux | grep " . $x_value, $xpids);
@@ -200,6 +200,7 @@ if($action == "monitor")
 		if($load[0] > $load_limits[0])
 		{
 					echo "   FAILED! 1 minute load average is above " . $load_limits[0] . ", currently . " . $load[0] . "\n";
+					write_load_log($load[0],"1 minute load average");
 					$server = $GLOBALS['server'];
 					$subject = '[SERVER MONITOR] ' . $server . ' - Load Average Is High';
 					$body = $server . " Load average test FAILED! 1 minute load average is above " . $load_limits[0] . ", currently . " . $load[0] . "\n\n";
@@ -225,6 +226,7 @@ if($action == "monitor")
 		if($load[1] > $load_limits[1])
 		{
 					echo "   FAILED! 5 minute load average is above " . $load_limits[1] . ", currently . " . $load[1] . "\n";
+					write_load_log($load[1],"5 minute load average");
 					$server = $GLOBALS['server'];
 					$subject = '[SERVER MONITOR] ' . $server . ' - Load Average Is High';
 					$body = $server . " Load average test FAILED! 5 minute load average is above " . $load_limits[1] . ", currently . " . $load[1] . "\n\n";
@@ -255,6 +257,7 @@ if($action == "monitor")
 		if($load[2] > $load_limits[2])
 		{
 					echo "   FAILED! 15 minute load average is above " . $load_limits[2] . ", currently . " . $load[2] . "\n";
+					write_load_log($load[2],"15 minute load average");
 					$server = $GLOBALS['server'];
 					$subject = '[SERVER MONITOR] ' . $server . ' - Load Average Is High';
 					$body = $server . " Load average test FAILED! 15 minute load average is above " . $load_limits[2] . ", currently . " . $load[2] . "\n\n";
@@ -311,15 +314,19 @@ function zipdump ($servername) {
 
 function dodumps($db_host, $db_user, $db_pass) {
 
-        $con = mysql_connect($db_host,$db_user,$db_pass);
-        if (!$con) { die('Could not connect: ' . mysql_error()); }
+	$conn = mysqli_connect($db_host, $db_user, $db_pass, '');
+	// Check connection
+	
+	if (!$conn) {
+		die("Connection failed: " . mysqli_connect_error()); // TODO: log this or send alert 
+	}
 		echo 'connected to database';
 		echo "\n";
 		echo 'Getting Database List';
-        $result = mysql_query("show databases;")
+        $result = mysqli_query($conn, "show databases;")
         or die(mysql_error());
         //print_r($result);
-        while($row = mysql_fetch_array( $result ))
+        while($row = mysqli_fetch_assoc($result)) 
         {
                 print 'Dumping ' . $row['Database'];
                 print '
@@ -330,6 +337,7 @@ function dodumps($db_host, $db_user, $db_pass) {
                 system("mysqldump -P3308 -h" . $db_host ." -u" . $db_user . " -p" . $db_pass . " " . $db . " > " . $outname);
         }
 }
+
 
 function get_oldest_file($directory, $days) 
 { 
@@ -406,7 +414,7 @@ function virus_scan($dir)
 function remove_alerted($type,$what)
 {
 	
-	$path = realpath(dirname(__FILE__));
+	$path = $GLOBALS['n5mon_path'];
 	$rline = $type . "," . $what . "\n";
 	$file = file_get_contents($path . "/alerts.dat");
 	$file = str_replace($rline, "", $file);			
@@ -416,7 +424,7 @@ function remove_alerted($type,$what)
 function already_alerted($type,$what)
 {
 	$alerted = 0;
-	$path = realpath(dirname(__FILE__));
+	$path = $GLOBALS['n5mon_path'];
 	$fp = fopen($path . '/alerts.dat', 'r');
 	while ( !feof($fp) )
 	{
@@ -435,14 +443,36 @@ function record_alert($type,$what)
 {
 	if(!already_alerted($type,$what)) 
 	{
-		 $path = realpath(dirname(__FILE__));
+		 $path = $GLOBALS['n5mon_path'];
 		 $file = $path = "/alerts.dat";
 		 $line = $type . "," . $what . "\n";
 		 file_put_contents($file, $line, FILE_APPEND);
 	}
 }
-	
 
+function write_load_log($load,$desc) 
+{
+		 $file = $GLOBALS['load_log'];
+		 $time = date("h:i:sa");
+		 $today = date("Y-m-d");
+		 $line = $desc . "," . $load . "," . $time . "," . $today . "\n";
+		 if($file) 
+		 {
+			file_put_contents($file, $line, FILE_APPEND);
+		 }
+}
+	
+function write_service_log($service,$desc) 
+{
+		 $file = $GLOBALS['service_log'];
+		 $time = date("h:i:sa");
+		 $today = date("Y-m-d");
+		 $line = $desc . "," . $service . "," . $time . "," . $today . "\n";
+		 if($file) 
+		 {
+			file_put_contents($file, $line, FILE_APPEND);
+		 }
+}
 function send_alert($subject, $body)
 {
             echo "   ACTION: Sending Alert to " . $GLOBALS['alert_email'] . " - " . $subject . "\n"; 

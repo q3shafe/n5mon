@@ -39,12 +39,14 @@ This script is licensed under the GNU General Public License (GPL) version 2 ( h
 Changelog:
 1.0r13
 - Added in the ability to specify a separate helpdesk email and pick which alerts go to that email.
+- Added new global $GLOBALS['n5mon_path'] as a workaround to the alerts.dat bug.
+- Converted all mysql calls to mysqli as mysql_ is depreciated in php 7
+- Added service and load average logs, that are written to when monitor is tripped.
 1.0r12
 - fixed formatting of load alerts.
 - Removed backup days defaults.
 - Cleaned up config file.
 - Added more documentation to n5mon-config.php
-
 1.0r11 
 - fixed bug in purge process
 1.0r10
@@ -71,10 +73,9 @@ Changelog:
 -initial commit
 
 ROADMAP
-Monthy/Weekly Reporting of service uptime
-Remote http check (like siteguard)
-FTP Backups Out
-							
+-Remote http check (like siteguard)
+-FTP Backups Out
+-database monitor							
 
 	
 
