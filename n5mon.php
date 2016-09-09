@@ -8,7 +8,7 @@ $action = $argv[0];
 $id = $argv[1];
 	echo "\n";			
 	echo "N5 Networks System Monitor\n";		
-	echo "Version 1.1r13\n";		
+	echo "Version 1.1r14\n";		
 	echo "Low overhead all purpose system monitor and maintenance tool\n";		
 	echo "\n";		
 	echo "2016 Brian Shaffer / N5 Networks\n";		
@@ -62,6 +62,8 @@ if($action == "backup")
 			echo "--Backup directory " . $x_value . "\n";	
 			$today = date("Y-m-d");
 			$server = $GLOBALS['server'];
+			$server = str_replace(" ", "_" , $server);					
+			$server = str_replace("'", "_" , $server);								
 			$dest = $GLOBALS['backup_dir'];
 			$outname = $server . "_" . $today . ".tar.gz";
 			system("tar -cvzf " . $dest . $outname . " " . $x_value . "/*");	

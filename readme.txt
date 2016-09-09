@@ -37,6 +37,8 @@ Command line Options
 This script is licensed under the GNU General Public License (GPL) version 2 ( https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html )
 
 Changelog:
+-1.0r14
+- Fixed issue where backups would have problems if spaces where present in server name.
 1.0r13
 - Added in the ability to specify a separate helpdesk email and pick which alerts go to that email.
 - Added new global $GLOBALS['n5mon_path'] as a workaround to the alerts.dat bug.
