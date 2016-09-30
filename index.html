@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="N5mon : ">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>N5mon</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/q3shafe/n5mon">View on GitHub</a>
+
+          <h1 id="project_title">N5mon</h1>
+          <h2 id="project_tagline"></h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/q3shafe/n5mon/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/q3shafe/n5mon/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <p>N5MON Simple Monitoring and Maintenance Tool.
+2016 N5 Networks
+Licensed under the GPL v2.0
+<a href="http://dev.n5net.com">http://dev.n5net.com</a>
+<a href="mailto:support@n5net.com">support@n5net.com</a></p>
+
+<p>requirements: PHP 5.4.x or newer, Curl, ClamAV (for virus scanning).</p>
+
+<p>Overview:
+N5MON is a lightweight, low overhead simple system monitor, maintenance tool for doing simple server monitoring as well as automated local 
+backups and virus scans.  It runs under PHP-CLI either from the command line or from cron.</p>
+
+<p>It monitors diskspace, running processes and load averages.  N5MON will attempt to restart services that are down or run any commands you specify.  Alerts are 
+sent through email when a problem is found.</p>
+
+<p>Installation:
+1) Unpack all files in the archive, be sure they are readable, exectuable and that alerts.dat is writable.
+2) Edit n5mon-config.php with all of your preferences. This options in this file are well documented.
+3) Use the cron job example setup in crontab.txt as a roadmap to setup your cron jobs for n5mon to your liking.</p>
+
+<p>Command line Options</p>
+
+<pre><code>Usage:
+php ./n5mon.php {option}
+
+Command line options:
+    monitor     - Runs all monitors
+    backup      - Runs all backups
+    dbbackup    - Backup and archive all databases
+    vscan       - Perform Virus Scan
+    purge       - Purge oldest backup files (db and regular backups), number of days to hold back is
+                  specified in n5mon-config.php
+    testemail   - Sends test email(s) to emails specified in config file.
+</code></pre>
+
+<p>This script is licensed under the GNU General Public License (GPL) version 2 ( <a href="https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html">https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html</a> )</p>
+
+<p>Changelog:
+-1.0r14</p>
+
+<ul>
+<li>Fixed issue where backups would have problems if spaces where present in server name.</li>
+<li>Fixed issue with disk space if disk was bigger than 1tb</li>
+<li>Added option to send test emails
+1.0r13</li>
+<li>Added in the ability to specify a separate helpdesk email and pick which alerts go to that email.</li>
+<li>Added new global $GLOBALS['n5mon_path'] as a workaround to the alerts.dat bug.</li>
+<li>Converted all mysql calls to mysqli as mysql_ is depreciated in php 7</li>
+<li>Added service and load average logs, that are written to when monitor is tripped.
+1.0r12</li>
+<li>fixed formatting of load alerts.</li>
+<li>Removed backup days defaults.</li>
+<li>Cleaned up config file.</li>
+<li>Added more documentation to n5mon-config.php
+1.0r11 </li>
+<li>fixed bug in purge process
+1.0r10</li>
+<li>load average alerts now send to 5 cpu processes
+1.0r9</li>
+<li>Added readme.txt</li>
+<li>began work on the http remote monitoring options</li>
+<li>more explanation added to n5mon-config.php
+1.0r8</li>
+<li>fixed alerts.dat path issue
+1.0r7</li>
+<li>Added in config options to set number of days to keep backups.
+1.0r6</li>
+<li>code cleanup
+1.0r5</li>
+<li>Fixed issue where alerts got sent over and over, 1 alert gets sent now until the monitor goes back up.   - alerts.dat must be writable
+1.0r4</li>
+<li>fixed issue with load test logic
+1.0r3</li>
+<li>Tons of fixes
+1.0r2</li>
+<li>Version 1 Beta (will go into production) - Added Cron file
+1.0r1
+-initial commit</li>
+</ul>
+
+<p>ROADMAP
+-Remote http check (like siteguard)
+-FTP Backups Out
+-database monitor                           </p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">N5mon maintained by <a href="https://github.com/q3shafe">q3shafe</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
