@@ -8,7 +8,7 @@ $action = $argv[0];
 $id = $argv[1];
 	echo "\n";			
 	echo "N5 Networks System Monitor\n";		
-	echo "Version 1.1r14\n";		
+	echo "Version 1.1r15\n";		
 	echo "Low overhead all purpose system monitor and maintenance tool\n";		
 	echo "\n";		
 	echo "2016 Brian Shaffer / N5 Networks\n";		
@@ -25,6 +25,7 @@ $id = $argv[1];
 		echo "	php ./n5mon.php dbbackup - Backup and archive all databases\n";			
 		echo "	php ./n5mon.php vscan - Perform Virus Scan\n";			
 		echo "	php ./n5mon.php purge - Purge oldest backup files - saves the last 5\n";					
+		echo "	php ./n5mon.php testemail - Sends a test message to all enabled emails in cfg file\n";							
 		echo "\n";		
 		echo "All options are stored in n5mon-config.php\n";		
 		echo "\n";			
@@ -32,6 +33,19 @@ $id = $argv[1];
 		exit;
 	}
 
+	
+	
+if($action == "testemail")
+{
+	$subject = "Test Message from N5MON on " . $GLOBALS['server'];	
+	$body = "This is a test message.  If you got it, it works!";
+	send_alert($subject, $body)
+	send_helpdesk($subject, $body)
+}
+
+
+	
+	
 /* Remove Oldest Backup */
 if($action == "purge")
 {
@@ -108,7 +122,7 @@ if($action == "monitor")
 	$si_prefix = array( 'B', 'KB', 'MB', 'GB', 'TB', 'EB', 'ZB', 'YB' );
     $base = 1024;
     $class = min((int)log($bytes , $base) , count($si_prefix) - 1);
-    $gb_free = sprintf('%1.2f' , $bytes / pow($base,$class));
+    $gb_free = sprintf('%1.2f' , $bytes / pow($base,3));
 	//echo $gb_free . " FREE\n\n";
 	echo "--Checking if free disk space is at least " . $GLOBALS['disk_limit'] . "GB ...\n";
 	if($GLOBALS['disk_limit']>$gb_free) {

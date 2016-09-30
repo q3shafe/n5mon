@@ -30,6 +30,7 @@ Command line Options
 		vscan 		- Perform Virus Scan
 		purge 		- Purge oldest backup files (db and regular backups), number of days to hold back is
 					  specified in n5mon-config.php
+		testemail	- Sends test email(s) to emails specified in config file.
 
 
 					  
@@ -39,6 +40,8 @@ This script is licensed under the GNU General Public License (GPL) version 2 ( h
 Changelog:
 -1.0r14
 - Fixed issue where backups would have problems if spaces where present in server name.
+- Fixed issue with disk space if disk was bigger than 1tb
+- Added option to send test emails
 1.0r13
 - Added in the ability to specify a separate helpdesk email and pick which alerts go to that email.
 - Added new global $GLOBALS['n5mon_path'] as a workaround to the alerts.dat bug.

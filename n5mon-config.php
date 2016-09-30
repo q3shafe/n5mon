@@ -32,7 +32,7 @@
 	// PROCESSES TO MONITOR ///////////////////////////////////////////////////////////////////
 	/* 
 		Add as many services as you want
-		the format is 'Name' => 'Process"  
+		the format is 'Name' => 'Process'
 		Example 'WebServer' => 'httpd'
 	*/
 	$processes = array(
@@ -46,7 +46,7 @@
 	// SERVICE DOWN, RECOVERY COMMANDS	///////////////////////////////////////////////////////
 		/* 
 		These correspond to the names of each service specified in the $processes section above
-		the format is 'Name' => '#commandsToRun"  
+		the format is 'Name' => '#commandsToRun'  
 		Example 'WebServer' => 'service restart httpd'
 	*/
 	$rprocesses = array(
@@ -88,7 +88,7 @@
 	
 	// MAXIMUM LOAD AVERAGES 1, 5 and 15 minutes	/////////////////////////////////////////////////
 	$load_limits = array(
-			'0'=>'0.0',
+			'0'=>'1.0',
 			'1'=>'1.5',
 			'2'=>'1.5'
 			);
