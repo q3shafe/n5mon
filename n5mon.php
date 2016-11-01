@@ -39,8 +39,9 @@ if($action == "testemail")
 {
 	$subject = "Test Message from N5MON on " . $GLOBALS['server'];	
 	$body = "This is a test message.  If you got it, it works!";
-	send_alert($subject, $body)
-	send_helpdesk($subject, $body)
+	send_alert($subject, $body);
+	send_helpdesk($subject, $body);
+	echo "Sending test email...\n";
 }
 
 
