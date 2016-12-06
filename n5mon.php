@@ -1,6 +1,6 @@
 <?php
 /* N5 NETWORKS SERVER MONITOR */
-
+/* brian@n5net */
 include_once("n5mon-config.php");		
 
 array_shift($argv);

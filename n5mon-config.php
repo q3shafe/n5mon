@@ -110,9 +110,9 @@
 	$GLOBALS['load_log'] = '';
 	
 	// 	DATABASE CONNECTION //////////////////////////////////////////////////////////////////////
-	$GLOBALS['db_host'] = "localhost";
-	$GLOBALS['db_user'] = "root";
-	$GLOBALS['db_pass'] = "password";
+	$GLOBALS['db_host'] = 'localhost';
+	$GLOBALS['db_user'] = 'root';
+	$GLOBALS['db_pass'] = 'password';
 
 	
 ?>
