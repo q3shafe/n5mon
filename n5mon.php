@@ -124,7 +124,10 @@ if($action == "monitor")
     $base = 1024;
     $class = min((int)log($bytes , $base) , count($si_prefix) - 1);
     $gb_free = sprintf('%1.2f' , $bytes / pow($base,3));
+	
 	//echo $gb_free . " FREE\n\n";
+	
+	
 	echo "--Checking if free disk space is at least " . $GLOBALS['disk_limit'] . "GB ...\n";
 	if($GLOBALS['disk_limit']>$gb_free) {
 		echo "---FAILED! Disk space check " . $gb_free . " GB available...\n";
