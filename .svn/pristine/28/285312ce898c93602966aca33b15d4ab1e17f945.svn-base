@@ -18,11 +18,9 @@
 
 	// NOTIFICATION EMAILS	///////////////////////////////////////////////////////////////////
 	$GLOBALS['sms_email'] = "5555551212@tmomail.net";  // This is simply a secondary email, I use an email to sms gateway
-	$GLOBALS['alert_email'] = "me@domain.com";
+	$GLOBALS['alert_email'] = "me@dmail.com";
 	$GLOBALS['helpdesk_email'] = "helpdesk@domain.com";
-
-	// The from address on the alert emails
-	$GLOBALS['from_email'] = "me@domain.com";
+	
 	
 	// MINIMUM DISK SPACE IN GB	////////////////////////////////////////////////////////////////
 	$GLOBALS['disk_limit'] = '80.0';
@@ -34,7 +32,7 @@
 	// PROCESSES TO MONITOR ///////////////////////////////////////////////////////////////////
 	/* 
 		Add as many services as you want
-		the format is 'Name' => 'Process'
+		the format is 'Name' => 'Process"  
 		Example 'WebServer' => 'httpd'
 	*/
 	$processes = array(
@@ -48,7 +46,7 @@
 	// SERVICE DOWN, RECOVERY COMMANDS	///////////////////////////////////////////////////////
 		/* 
 		These correspond to the names of each service specified in the $processes section above
-		the format is 'Name' => '#commandsToRun'  
+		the format is 'Name' => '#commandsToRun"  
 		Example 'WebServer' => 'service restart httpd'
 	*/
 	$rprocesses = array(
@@ -90,7 +88,7 @@
 	
 	// MAXIMUM LOAD AVERAGES 1, 5 and 15 minutes	/////////////////////////////////////////////////
 	$load_limits = array(
-			'0'=>'1.0',
+			'0'=>'0.0',
 			'1'=>'1.5',
 			'2'=>'1.5'
 			);
@@ -112,9 +110,9 @@
 	$GLOBALS['load_log'] = '';
 	
 	// 	DATABASE CONNECTION //////////////////////////////////////////////////////////////////////
-	$GLOBALS['db_host'] = 'localhost';
-	$GLOBALS['db_user'] = 'root';
-	$GLOBALS['db_pass'] = 'password';
+	$GLOBALS['db_host'] = "localhost";
+	$GLOBALS['db_user'] = "root";
+	$GLOBALS['db_pass'] = "password";
 
 	
 ?>

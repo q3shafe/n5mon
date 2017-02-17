@@ -1,0 +1,62 @@
+<?
+
+/* N5 NETWORKS SERVER MONITOR CONFIG */
+
+	// Server Name
+	$GLOBALS['server'] = "Nico";
+	
+	
+	// 	Database Connection
+	$GLOBALS['db_host'] = "localhost";
+	$GLOBALS['db_user'] = "root";
+	$GLOBALS['db_pass'] = "br400doh";
+			
+	
+	// Notification Emails	/////////////////////////////////////////
+	$GLOBALS['sms_email'] = "";
+	$GLOBALS['alert_email'] = "q3shafe@gmail.com";
+	
+	// Minimum Disk Space In GB	/////////////////////////////////////
+	$GLOBALS['disk_limit'] = '1.0';
+	
+	// Define services to monitor  Name -> Process name	/////////////
+	$processes = array(
+			'fake'=>'jgkjghjkg',
+			'web'=>'apache2',
+			'ftp'=>'proftpd',			
+			'mysql'=>'mysql',
+			'smtp'=>'smtp'			
+			);
+			
+	// Virus Scan Directories  What -> Directories	//////////////////
+	$scan_dirs = array(
+			'web'=>'/home/'
+			);
+
+	// BACKUP Directories  prefix -> directory	//////////////////////
+	$backup_dirs = array(
+			'web'=>'/home/',
+			'apachecfgs'=>'/etc/apache2/sites-enabled/',
+			);
+			
+	// Load average limits 1, 5 and 15 minutes	//////////////////////
+	$load_limits = array(
+			'0'=>'2.0',
+			'1'=>'1.5',
+			'2'=>'1.5'
+			);
+			
+	// Where do backups go?
+	$GLOBALS['backup_dir'] = "/backups/";
+
+
+	
+// DO NOT CHANGE ANYTHING BELOW THIS /////////////////////////////////////////////////////////////////////////
+/*
+$conn = mysqli_connect($db_host, $db_user, $db_pass, $database);
+// Check connection
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+	
+*/	
