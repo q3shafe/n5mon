@@ -38,6 +38,9 @@ Command line Options
 This script is licensed under the GNU General Public License (GPL) version 2 ( https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html )
 
 Changelog:
+-1.0r15
+-Added from email address for alerts.
+
 -1.0r14
 - Fixed issue where backups would have problems if spaces where present in server name.
 - Fixed issue with disk space if disk was bigger than 1tb
