@@ -7,11 +7,10 @@ array_shift($argv);
 $action = $argv[0];
 $id = $argv[1];
 	echo "\n";			
-	echo "N5 Networks System Monitor\n";		
-	echo "Version 1.1r15\n";		
+	echo "N5 Networks System Monitor\n";			
 	echo "Low overhead all purpose system monitor and maintenance tool\n";		
 	echo "\n";		
-	echo "2016 Brian Shaffer / N5 Networks\n";		
+	echo "2016, 2017 Brian Shaffer / N5 Networks\n";		
 	echo "brian@n5net.com\n";		
 	echo "Licensed under the GPL v2.0\n";		
 	echo "\n";		
@@ -45,7 +44,6 @@ if($action == "testemail")
 }
 
 
-	
 	
 /* Remove Oldest Backup */
 if($action == "purge")

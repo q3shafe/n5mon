@@ -2,7 +2,6 @@
 
 /* 
 		N5 NETWORKS SERVER MONITOR CONFIG 
-		Version 1.0r12
 
 		Each option is documented.  If you need help visit http://support.n5net.com.
 */
