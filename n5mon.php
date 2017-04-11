@@ -24,6 +24,8 @@ $id = $argv[1];
 		echo "	php ./n5mon.php dbbackup - Backup and archive all databases\n";			
 		echo "	php ./n5mon.php vscan - Perform Virus Scan\n";			
 		echo "	php ./n5mon.php purge - Purge oldest backup files - saves the last 5\n";					
+		echo "	php ./n5mon.php checkurl http://domain.com - check's to see the url is returning content and correct status codes\n";							
+		echo "\n";
 		echo "	php ./n5mon.php testemail - Sends a test message to all enabled emails in cfg file\n";							
 		echo "\n";		
 		echo "All options are stored in n5mon-config.php\n";		
@@ -32,7 +34,49 @@ $id = $argv[1];
 		exit;
 	}
 
-	
+if ($action == "checkurl")
+{		
+		$subject = '[SERVER MONITOR] ' . $server . ' ' . $id . ' FAILED MONITOR UPTIME CHECK!';
+		$body = '';
+		$siteisonline = 1;
+		// Get the status code
+		echo "Checking url " . $id . "\n";
+		$stcode = get_url_status($id);
+		if($stcode >= 400 && $stcode <= 599) {	
+			echo "Status Code Check FAILED Status code = " . $ stcode . "\n";
+			$body = "URL: " . $id . "\nStatus Code Check FAILED Status code = " . $ stcode . "\n";
+			$siteisonline = 0;
+		} else {
+			echo "Status Code Check PASSED Status code = " . $ stcode . "\n";
+			$siteisonline = 1;
+		}
+		
+		// check for content at url
+		$page = get_url_contents($id);
+		if(!$page)
+		{
+			echo "NO CONTENT AT URL!\n";
+			$body .= "URL: " . $id . "\nNo content found on page.\n";
+			$siteisonline = 0;
+		} else {
+			echo "Content Check PASSED.\n";
+		}	
+		if(!$siteisonline)
+		{
+			if(!already_alerted($id,"1")) 
+			{
+				send_alert($subject,$body);
+				record_alert($id,"1");
+				if($GLOBALS['disk_helpdesk']) 
+				{
+					send_helpdesk($subject,$body);
+				}
+			}			
+		} else {
+			remove_alerted($id,"1");			
+		}
+
+}	
 	
 if($action == "testemail")
 {
