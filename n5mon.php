@@ -43,11 +43,11 @@ if ($action == "checkurl")
 		echo "Checking url " . $id . "\n";
 		$stcode = get_url_status($id);
 		if($stcode >= 400 && $stcode <= 599) {	
-			echo "Status Code Check FAILED Status code = " . $ stcode . "\n";
-			$body = "URL: " . $id . "\nStatus Code Check FAILED Status code = " . $ stcode . "\n";
+			echo "Status Code Check FAILED Status code = " . $stcode . "\n";
+			$body = "URL: " . $id . "\nStatus Code Check FAILED Status code = " . $stcode . "\n";
 			$siteisonline = 0;
 		} else {
-			echo "Status Code Check PASSED Status code = " . $ stcode . "\n";
+			echo "Status Code Check PASSED Status code = " . $stcode . "\n";
 			$siteisonline = 1;
 		}
 		
