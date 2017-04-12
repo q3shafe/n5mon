@@ -30,6 +30,15 @@
 	$GLOBALS['disk_helpdesk'] = 1;	
 
 	
+	// NUMBER OF FAILURES BEFORE ALERTING FOR CHECKURL /////////////////////////////////////////
+	/* 
+		Sometimes checking a url too often can result on a server side failure.
+		This allows a certain amount of grace before sending an alert when using the
+		'checkurl' command line option.
+	*/
+	$GLOBALS['checkurl_failures'] = 3;	
+	
+	
 	// PROCESSES TO MONITOR ///////////////////////////////////////////////////////////////////
 	/* 
 		Add as many services as you want

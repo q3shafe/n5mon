@@ -3,15 +3,27 @@
 /* brian@n5net */
 include_once("n5mon-config.php");		
 
+
+/*
+TODO
+- Specify what monitors to run (i.e. exclude load average or some shit like that)
+- SSL Certificate checks on remote urls
+- Streamline initial configuration process
+- Fix all php warnings.
+*/
+
+
 array_shift($argv);
 $action = $argv[0];
 $id = $argv[1];
 	echo "\n";			
+	echo "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n";
 	echo "N5 Networks System Monitor\n";			
 	echo "Low overhead all purpose system monitor and maintenance tool\n";		
 	echo "\n";		
 	echo "2016, 2017 Brian Shaffer / N5 Networks\n";		
 	echo "brian@n5net.com\n";		
+	echo "http://dev.n5net.com/software/ \n";
 	echo "Licensed under the GPL v2.0\n";		
 	echo "\n";		
 
@@ -33,21 +45,44 @@ $id = $argv[1];
 		echo "\n";			
 		exit;
 	}
-
+	echo "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n";
+	echo "[NOTICE] Starting.\n";
+	
+// Check that alerts.dat exists and is writable
+$path = $GLOBALS['n5mon_path'];
+$file = $path . "/alerts.dat";	
+if(!file_exists($file))
+{
+	echo "[NOTICE] alerts.dat not found creating a new one.\n";
+	$cmdline = "touch " . $file;
+	system($cmdline);
+	$cmdline = "chmod 0777 " . $file;
+	system($cmdline);
+}
+	 
+	 
+	
 if ($action == "checkurl")
 {		
+		// check for url
+		if(!$id)
+		{
+			echo "[ERROR!] No URL Provided, exiting\n";
+			exit;
+		}
+
 		$subject = '[SERVER MONITOR] ' . $server . ' ' . $id . ' FAILED MONITOR UPTIME CHECK!';
 		$body = '';
 		$siteisonline = 1;
 		// Get the status code
-		echo "Checking url " . $id . "\n";
+		echo "[TESTING] Checking url " . $id . "\n";
 		$stcode = get_url_status($id);
-		if($stcode >= 400 && $stcode <= 599) {	
-			echo "Status Code Check FAILED Status code = " . $stcode . "\n";
+		if(($stcode >= 400 && $stcode <= 599) || ($stcode == 0)) {	
+			echo "[RESULT] Status Code Check FAILED Status code = " . $stcode . "\n";
 			$body = "URL: " . $id . "\nStatus Code Check FAILED Status code = " . $stcode . "\n";
 			$siteisonline = 0;
 		} else {
-			echo "Status Code Check PASSED Status code = " . $stcode . "\n";
+			echo "[RESULT] Status Code Check PASSED Status code = " . $stcode . "\n";
 			$siteisonline = 1;
 		}
 		
@@ -55,24 +90,36 @@ if ($action == "checkurl")
 		$page = get_url_contents($id);
 		if(!$page)
 		{
-			echo "NO CONTENT AT URL!\n";
+			echo "[RESULT] NO CONTENT AT URL!\n";
 			$body .= "URL: " . $id . "\nNo content found on page.\n";
 			$siteisonline = 0;
 		} else {
-			echo "Content Check PASSED.\n";
+			echo "[RESULT] Content Check PASSED.\n";
 		}	
+
 		if(!$siteisonline)
 		{
-			if(!already_alerted($id,"1")) 
-			{
-				send_alert($subject,$body);
-				record_alert($id,"1");
-				if($GLOBALS['disk_helpdesk']) 
+			
+				$gl = (int)$GLOBALS['checkurl_failures'];
+				$aa = (int)already_alerted($id,"1")+1;
+				
+				if ($gl == $aa)
 				{
-					send_helpdesk($subject,$body);
+					send_alert($subject,$body);					
+					if($GLOBALS['disk_helpdesk']) 
+					{
+						send_helpdesk($subject,$body);
+					}
 				}
-			}			
+				record_url_alert($id,"1");
+			
 		} else {
+			if(already_alerted($id,"1")) 
+			{
+				$subject = '[SERVER MONITOR] ' . $server . ' ' . $id . ' IS BACK ONLINE!';
+				$body .= "URL: " . $id . "\n is back online.\n";				
+				send_alert($subject,$body);
+			}		
 			remove_alerted($id,"1");			
 		}
 
@@ -84,7 +131,7 @@ if($action == "testemail")
 	$body = "This is a test message.  If you got it, it works!";
 	send_alert($subject, $body);
 	send_helpdesk($subject, $body);
-	echo "Sending test email...\n";
+	echo "[ACTION] Sending test email...\n";
 }
 
 
@@ -93,18 +140,18 @@ if($action == "testemail")
 if($action == "purge")
 {
 		
-		echo "- Removing mysql backups older than ". $GLOBALS['dbbackup_days'] . " days\n";
-        echo "- Removing regular backups older than ". $GLOBALS['backup_days'] . " days\n";
+		echo "[ACTION] Removing mysql backups older than ". $GLOBALS['dbbackup_days'] . " days\n";
+        echo "[ACTION] Removing regular backups older than ". $GLOBALS['backup_days'] . " days\n";
 
 		// Regular backups
 		$xfile =  get_oldest_file($GLOBALS['backup_dir'],$GLOBALS['backup_days'] ); 
-		echo "Oldest Is: ";
+		echo "[NOTICE] Oldest Is: ";
 		echo $xfile;
 		echo "\n";
 		if ($xfile) { system("rm " . $GLOBALS['backup_dir']  . $xfile); }
 		// Databases backups
 		$xfile =  get_oldest_file($GLOBALS['dbbackup_dir'],$GLOBALS['dbbackup_days'] ); 
-		echo "Oldest Is: ";
+		echo "[NOTICE] Oldest Is: ";
 		echo $xfile;
 		echo "\n";
 		if ($xfile) { 		system("rm " . $GLOBALS['dbbackup_dir']  . $xfile);	}
@@ -116,7 +163,7 @@ if($action == "backup")
 	make_backup_dir();
 	foreach($backup_dirs as $x => $x_value) 
 	{
-			echo "--Backup directory " . $x_value . "\n";	
+			echo "[NOTICE] Backup directory " . $x_value . "\n";	
 			$today = date("Y-m-d");
 			$server = $GLOBALS['server'];
 			$server = str_replace(" ", "_" , $server);					
@@ -131,9 +178,9 @@ if($action == "backup")
 if($action == "dbbackup")
 {			
 	make_backup_dir();
-	echo "--Backup All Databases\n";	
+	echo "[ACTION] Backup All Databases\n";	
 	dodumps($GLOBALS['db_host'], $GLOBALS['db_user'], $GLOBALS['db_pass']);
-	echo "--Compressing backups\n";	
+	echo "[ACTION] Compressing backups\n";	
 	zipdump("databases");
 }
 
@@ -141,12 +188,12 @@ if($action == "dbbackup")
 if($action == "vscan")
 {			
 	 // Update Virus Definitions
-	echo "--Updating Virus definitions\n";	
+	echo "[ACTION] Updating Virus definitions\n";	
 	$cmdline = "freshclam";
     system($cmdline);
 	
 	foreach($scan_dirs as $x => $x_value) {
-		echo "--Scanning directory " . $x_value . " for viruses\n";	
+		echo "[ACTION] Scanning directory " . $x_value . " for viruses\n";	
 		virus_scan($x_value);
 	}
 }
@@ -155,9 +202,8 @@ if($action == "vscan")
 if($action == "monitor")
 {	
 
-	echo "----------------------------------------\n";
-	echo "RUNNING ALL MONITORS\n";
-	echo "----------------------------------------\n";
+	echo "\n";
+	echo "[ACTION] RUNNING ALL MONITORS\n";	
 	echo "\n";
 	
 	// DISK MONITOR
@@ -170,9 +216,9 @@ if($action == "monitor")
 	//echo $gb_free . " FREE\n\n";
 	
 	
-	echo "--Checking if free disk space is at least " . $GLOBALS['disk_limit'] . "GB ...\n";
+	echo "[ACTION] Checking if free disk space is at least " . $GLOBALS['disk_limit'] . "GB ...\n";
 	if($GLOBALS['disk_limit']>$gb_free) {
-		echo "---FAILED! Disk space check " . $gb_free . " GB available...\n";
+		echo "[RESULT] FAILED! Disk space check " . $gb_free . " GB available...\n";
 		$server = $GLOBALS['server'];
 		$subject = '[SERVER MONITOR] ' . $server . ' IS LOW ON DISK SPACE!';
 		$body = $server . ' IS LOW ON DISK SPACE! There is currently ' . $gb_free . ' GB free space.';
@@ -188,7 +234,7 @@ if($action == "monitor")
 		}
 		
 	} else {
-		echo "   PASSED! Disk space check, " . $gb_free . " GB available.\n";
+		echo "[RESULT] PASSED! Disk space check, " . $gb_free . " GB available.\n";
 		remove_alerted("disk","1");
 	}
 	echo "\n";
@@ -196,18 +242,18 @@ if($action == "monitor")
 
 			
 	foreach($processes as $x => $x_value) {
-		echo "--Checking Process: " . $x . "\n";	
+		echo "[ACTION] Checking Process: " . $x . "\n";	
 		exec("ps aux | grep " . $x_value, $pids);
 		if(!$pids[2]) {
 			// attempt to restart then check again
-			echo "   FAILED! service " . $x . " (" . $x_value . ") is NOT running, Attempting restart.\n";
+			echo "[RESULT] FAILED! service " . $x . " (" . $x_value . ") is NOT running, Attempting restart.\n";
 			write_service_log($x,$_value);
 			exec($rprocesses[$x], $null);
 			exec("sleep 10", $null);
 			exec("ps aux | grep " . $x_value, $xpids);
 
 			if(!$xpids[2]) {
-				echo "   FAILED! service " . $x . " (" . $x_value . ") IS DOWN could not restart.\n";
+				echo "[RESULT] FAILED! service " . $x . " (" . $x_value . ") IS DOWN could not restart.\n";
 				$server = $GLOBALS['server'];
 				$subject = '[SERVER MONITOR] ' . $server . ' - ' . $x_value . ' IS DOWN!';
 				$body = $server . ' Is reporting that service ' . $x . ' running ' . $x_value . ' IS NOT RUNNING!';
@@ -223,7 +269,7 @@ if($action == "monitor")
 				}
 						
 			} else {
-				echo "   OK! service " . $x . " (" . $x_value . ") HAS BEEN RESTARTED\n";
+				echo "[RESULT] OK! service " . $x . " (" . $x_value . ") HAS BEEN RESTARTED\n";
 				$server = $GLOBALS['server'];
 				$subject = '[SERVER MONITOR WARNING] ' . $server . ' - ' . $x_value . ' WAS DOWN!';
 				$body = $server . ' Is reporting that service ' . $x . ' running ' . $x_value . ' was down, but I was able to restart it.  This may be worth investigating.';
@@ -234,7 +280,7 @@ if($action == "monitor")
 			}
 		} else {
 			
-			echo "   PASSED! service " . $x . " (" . $x_value . ") is running\n";
+			echo "[RESULT] PASSED! service " . $x . " (" . $x_value . ") is running\n";
 			remove_alerted("process",$x);
 			
 		}
@@ -262,10 +308,10 @@ if($action == "monitor")
 	if($doload) {
 	
 		// 5 minute load
-		echo "--Checking 1 Minute load average\n";	
+		echo "[ACTION] Checking 1 Minute load average\n";	
 		if($load[0] > $load_limits[0])
 		{
-					echo "   FAILED! 1 minute load average is above " . $load_limits[0] . ", currently . " . $load[0] . "\n";
+					echo "[RESULT] FAILED! 1 minute load average is above " . $load_limits[0] . ", currently . " . $load[0] . "\n";
 					write_load_log($load[0],"1 minute load average");
 					$server = $GLOBALS['server'];
 					$subject = '[SERVER MONITOR] ' . $server . ' - Load Average Is High';
@@ -285,14 +331,14 @@ if($action == "monitor")
 						record_alert("load1","1");
 					} 
 		} else {
-					echo "   PASSED\n";
+					echo "[RESULT] PASSED\n";
 					remove_alerted("load1","1");
 		}
 		echo"\n";
-		echo "--Checking 5 Minute load average\n";	
+		echo "[ACTION] Checking 5 Minute load average\n";	
 		if($load[1] > $load_limits[1])
 		{
-					echo "   FAILED! 5 minute load average is above " . $load_limits[1] . ", currently . " . $load[1] . "\n";
+					echo "[RESULT] FAILED! 5 minute load average is above " . $load_limits[1] . ", currently . " . $load[1] . "\n";
 					write_load_log($load[1],"5 minute load average");
 					$server = $GLOBALS['server'];
 					$subject = '[SERVER MONITOR] ' . $server . ' - Load Average Is High';
@@ -318,14 +364,14 @@ if($action == "monitor")
 						
 					}
 		} else {
-					echo "   PASSED\n";
+					echo "[RESULT] PASSED\n";
 					remove_alerted("load5","1");
 		}
 		echo"\n";
-		echo "--Checking 15 Minute load average\n";	
+		echo "[ACTION] Checking 15 Minute load average\n";	
 		if($load[2] > $load_limits[2])
 		{
-					echo "   FAILED! 15 minute load average is above " . $load_limits[2] . ", currently . " . $load[2] . "\n";
+					echo "[RESULT] FAILED! 15 minute load average is above " . $load_limits[2] . ", currently . " . $load[2] . "\n";
 					write_load_log($load[2],"15 minute load average");
 					$server = $GLOBALS['server'];
 					$subject = '[SERVER MONITOR] ' . $server . ' - Load Average Is High';
@@ -344,11 +390,11 @@ if($action == "monitor")
 						record_alert("load15","1");
 					}
 		} else {
-					echo "   PASSED\n";
+					echo "[RESULT] PASSED\n";
 					remove_alerted("load15","1");
 		}
 	} else {
-		echo "--Skipping Load Check, Backup Or Virus Scan in Progress\n";	
+		echo "[NOTICE] !! Skipping Load Check, Backup Or Virus Scan in Progress !!\n";	
 	}
 	
 	
@@ -356,7 +402,7 @@ if($action == "monitor")
 	// -- FIXME
 	
 	echo "\n";
-	echo "All tests have been completed.\n";
+	echo "[NOTICE] All tests have been completed.\n";
 	
 }	
 
@@ -391,9 +437,9 @@ function dodumps($db_host, $db_user, $db_pass) {
 	if (!$conn) {
 		die("Connection failed: " . mysqli_connect_error()); // TODO: log this or send alert 
 	}
-		echo 'connected to database';
+		echo '[NOTICE] connected to database';
 		echo "\n";
-		echo 'Getting Database List';
+		echo '[ACTION] Getting Database List';
         $result = mysqli_query($conn, "show databases;")
         or die(mysql_error());
         //print_r($result);
@@ -424,8 +470,8 @@ function get_oldest_file($directory, $days)
 			//	echo $val . "\n";
 			if (is_file($directory.$val)) 
 			{
-				echo $val;
-				echo "\n"; 
+				//echo $val;
+				//echo "\n"; 
 				$file_date[$val] = filemtime($directory.$val);
 				$c++;
 			} 
@@ -467,8 +513,8 @@ function virus_scan($dir)
 			$body = "A virus has been found on the server.\n\n";
 			$body .= $file;
 			$body .= "\n\nPlease take immediate action and remove these potential threats.";
-			echo $body;
-			echo "\n";
+			echo "[RESULT] " . $body;
+			//echo "\n";
 			send_alert($subject,$body);
 			if($GLOBALS['virus_helpdesk']) 
 			{
@@ -478,13 +524,13 @@ function virus_scan($dir)
         } else {
 			$subject = "Virus Scan Completed - No Viruses Found";
 			$body = "Virus Scan Completed - No Viruses Found";
-			echo $subject . "\n";
+			echo "[RESULT] " .$subject . "\n";
         }
 }	
 
 function remove_alerted($type,$what)
 {
-	
+	global $GLOBALS;
 	$path = $GLOBALS['n5mon_path'];
 	$rline = $type . "," . $what . "\n";
 	$file = file_get_contents($path . "/alerts.dat");
@@ -494,6 +540,7 @@ function remove_alerted($type,$what)
 
 function already_alerted($type,$what)
 {
+	global $GLOBALS;
 	$alerted = 0;
 	$path = $GLOBALS['n5mon_path'];
 	$fp = fopen($path . '/alerts.dat', 'r');
@@ -504,26 +551,40 @@ function already_alerted($type,$what)
 		$data = str_getcsv($line, $delimiter);
 		$xtype = $data[0];
 		$xwhat = $data[1];
-		if(($xwhat == $what) && ($xtype == $type)) { $alerted = 1; }
+		if(($xwhat == $what) && ($xtype == $type)) { $alerted++; }
 	}
 	fclose($fp);
 	return $alerted;
 }
 
+
+function record_url_alert($type,$what) 
+{
+		 $path = $GLOBALS['n5mon_path'];
+		 $file = $path . "/alerts.dat";
+		 $line = $type . "," . $what . "\n";
+		 echo $file;
+		 file_put_contents($file, $line, FILE_APPEND);
+}
+
+
 function record_alert($type,$what) 
 {
+	
 	if(!already_alerted($type,$what)) 
 	{
 		 $path = $GLOBALS['n5mon_path'];
-		 $file = $path = "/alerts.dat";
+		 $file = $path . "/alerts.dat";
 		 $line = $type . "," . $what . "\n";
+		 //echo $file;
 		 file_put_contents($file, $line, FILE_APPEND);
 	}
 }
 
 function write_load_log($load,$desc) 
 {
-		 $file = $GLOBALS['load_log'];
+	global $GLOBALS;
+		$file = $GLOBALS;
 		 $time = date("h:i:sa");
 		 $today = date("Y-m-d");
 		 $line = $desc . "," . $load . "," . $time . "," . $today . "\n";
@@ -535,6 +596,7 @@ function write_load_log($load,$desc)
 	
 function write_service_log($service,$desc) 
 {
+		 global $GLOBALS;
 		 $file = $GLOBALS['service_log'];
 		 $time = date("h:i:sa");
 		 $today = date("Y-m-d");
@@ -546,8 +608,10 @@ function write_service_log($service,$desc)
 }
 function send_alert($subject, $body)
 {
-            echo "   ACTION: Sending Alert to " . $GLOBALS['alert_email'] . " - " . $subject . "\n"; 
-			echo $body;
+	global $GLOBALS;
+	
+            echo "[ALERT!] Sending Alert to " . $GLOBALS['alert_email'] . " - " . $subject . "\n"; 
+			echo "[ALERT!] " . $body;
 			$headers = "From: " . $GLOBALS['from_email'] . "\r\n";
 			mail($GLOBALS['alert_email'],$subject,$body,$headers);	
 			mail($GLOBALS['sms_email'],$subject,$body,$headers);	
@@ -557,8 +621,9 @@ function send_alert($subject, $body)
 
 function send_helpdesk($subject, $body)
 {
-            echo "   ACTION: HELPDESK Alert  to " . $GLOBALS['helpdesk_email'] . " - " . $subject . "\n"; 
-			echo $body;
+	global $GLOBALS;
+            echo "[ALERT!] HELPDESK Alert  to " . $GLOBALS['helpdesk_email'] . " - " . $subject . "\n"; 
+			echo "[ALERT!] " .$body;
 			$headers = "From: " . $GLOBALS['from_email'] . "\r\n";
 			mail($GLOBALS['helpdesk_email'],$subject,$body,$headers);	
 		
@@ -580,7 +645,7 @@ function get_url_contents($url){
         $ret = curl_exec($crl);
 		$http_status = curl_getinfo($crl, CURLINFO_HTTP_CODE);				
         curl_close($crl);
-		echo "STATUS: " . $http_status . "\n";
+		echo "[RESULT] STATUS: " . $http_status . "\n";
         return $ret;
 }
 
@@ -598,7 +663,7 @@ function get_url_status($url){
         $ret = curl_exec($crl);
 		$http_status = curl_getinfo($crl, CURLINFO_HTTP_CODE);				
         curl_close($crl);
-		echo "STATUS: " . $http_status . "\n";
+		echo "[RESULT] STATUS: " . $http_status . "\n";
         return $http_status;
 }
 
@@ -615,5 +680,18 @@ function url_exists($url){
           return false;
 }
 
+/*
+  Adds http:// to a string
+*/
+
+function addHttp($siteurl)
+{
+	
+	$parsed = parse_url($siteurl);
+	if (empty($parsed['scheme'])) {
+		$siteurl = 'http://' . ltrim($siteurl, '/');
+	}
+ return $siteurl;
+}
 
 ?>
