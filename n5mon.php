@@ -247,7 +247,7 @@ if($action == "monitor")
 		if(!$pids[2]) {
 			// attempt to restart then check again
 			echo "[RESULT] FAILED! service " . $x . " (" . $x_value . ") is NOT running, Attempting restart.\n";
-			write_service_log($x,$_value);
+			write_service_log($x,$x_value);
 			exec($rprocesses[$x], $null);
 			exec("sleep 10", $null);
 			exec("ps aux | grep " . $x_value, $xpids);
