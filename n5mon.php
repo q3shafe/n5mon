@@ -10,8 +10,10 @@ TODO
 - SSL Certificate checks on remote urls
 - Streamline initial configuration process
 - Fix all php warnings.
+- checkurl functionality except defined like services are in config.
 */
 
+error_reporting(E_ALL ^ E_WARNING ^ E_NOTICE); // Don't show warnings
 
 array_shift($argv);
 $action = $argv[0];
@@ -402,10 +404,9 @@ if($action == "monitor")
 	// -- FIXME
 	
 	echo "\n";
-	echo "[NOTICE] All tests have been completed.\n";
+	echo "[NOTICE] **** All tests have been completed. ****\n";
 	
 }	
-
 
 function make_backup_dir()
 {
