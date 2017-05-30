@@ -36,6 +36,12 @@ Command line Options
 
 
 					  
+=====================
+HEALTHCHECK.PHP
+=====================
+This is a quick report on the system's health.  If you would like it to also run a  virus scan add a parameter "dovirus" when running.
+
+					  
 					  
 This script is licensed under the GNU General Public License (GPL) version 2 ( https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html )
 
