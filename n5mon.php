@@ -38,6 +38,7 @@ $id = $argv[1];
 		echo "	php ./n5mon.php dbbackup - Backup and archive all databases\n";			
 		echo "	php ./n5mon.php vscan - Perform Virus Scan\n";			
 		echo "	php ./n5mon.php purge - Purge oldest backup files - saves the last 5\n";					
+		echo "	php ./n5mon.php checksites - The same as checkurl below, will check a list of sites specified in the config.\n";
 		echo "	php ./n5mon.php checkurl http://domain.com - check's to see the url is returning content and correct status codes\n";							
 		echo "\n";
 		echo "	php ./n5mon.php testemail - Sends a test message to all enabled emails in cfg file\n";							
@@ -62,7 +63,14 @@ if(!file_exists($file))
 	system($cmdline);
 }
 	 
-	 
+if ($action == "checksites")
+{
+	foreach($link_urls as $x => $x_value) 
+	{
+			echo "[ACTION] Checking site " . $x_value . "\n";	
+			checkurl($x_value);
+	}
+}	
 	
 if ($action == "checkurl")
 {		
@@ -72,61 +80,11 @@ if ($action == "checkurl")
 			echo "[ERROR!] No URL Provided, exiting\n";
 			exit;
 		}
-
-		$subject = '[SERVER MONITOR] ' . $server . ' ' . $id . ' FAILED MONITOR UPTIME CHECK!';
-		$body = '';
-		$siteisonline = 1;
-		// Get the status code
-		echo "[TESTING] Checking url " . $id . "\n";
-		$stcode = get_url_status($id);
-		if(($stcode >= 400 && $stcode <= 599) || ($stcode == 0)) {	
-			echo "[RESULT] Status Code Check FAILED Status code = " . $stcode . "\n";
-			$body = "URL: " . $id . "\nStatus Code Check FAILED Status code = " . $stcode . "\n";
-			$siteisonline = 0;
-		} else {
-			echo "[RESULT] Status Code Check PASSED Status code = " . $stcode . "\n";
-			$siteisonline = 1;
-		}
 		
-		// check for content at url
-		$page = get_url_contents($id);
-		if(!$page)
-		{
-			echo "[RESULT] NO CONTENT AT URL!\n";
-			$body .= "URL: " . $id . "\nNo content found on page.\n";
-			$siteisonline = 0;
-		} else {
-			echo "[RESULT] Content Check PASSED.\n";
-		}	
-
-		if(!$siteisonline)
-		{
-			
-				$gl = (int)$GLOBALS['checkurl_failures'];
-				$aa = (int)already_alerted($id,"1")+1;
-				
-				if ($gl == $aa)
-				{
-					send_alert($subject,$body);					
-					if($GLOBALS['disk_helpdesk']) 
-					{
-						send_helpdesk($subject,$body);
-					}
-				}
-				record_url_alert($id,"1");
-			
-		} else {
-			if(already_alerted($id,"1")) 
-			{
-				$subject = '[SERVER MONITOR] ' . $server . ' ' . $id . ' IS BACK ONLINE!';
-				$body .= "URL: " . $id . "\n is back online.\n";				
-				send_alert($subject,$body);
-			}		
-			remove_alerted($id,"1");			
-		}
-
+		checkurl($id);
 }	
-	
+
+
 if($action == "testemail")
 {
 	$subject = "Test Message from N5MON on " . $GLOBALS['server'];	
@@ -732,6 +690,67 @@ function addHttp($siteurl)
 		$siteurl = 'http://' . ltrim($siteurl, '/');
 	}
  return $siteurl;
+}
+
+function checkurl($id)
+{
+	
+	global $GLOBALS;
+		
+		$server = $GLOBALS['server'];
+		$subject = '[SERVER MONITOR] ' . $server . ' ' . $id . ' FAILED MONITOR UPTIME CHECK!';
+		$body = '';
+		$siteisonline = 1;
+		// Get the status code
+		echo "[TESTING] Checking url " . $id . "\n";
+		$stcode = get_url_status($id);
+		if(($stcode >= 400 && $stcode <= 599) || ($stcode == 0)) {	
+			echo "[RESULT] Status Code Check FAILED Status code = " . $stcode . "\n";
+			$body = "URL: " . $id . "\nStatus Code Check FAILED Status code = " . $stcode . "\n";
+			$siteisonline = 0;
+		} else {
+			echo "[RESULT] Status Code Check PASSED Status code = " . $stcode . "\n";
+			$siteisonline = 1;
+		}
+		
+		// check for content at url
+		$page = get_url_contents($id);
+		if(!$page)
+		{
+			echo "[RESULT] NO CONTENT AT URL!\n";
+			$body .= "URL: " . $id . "\nNo content found on page.\n";
+			$siteisonline = 0;
+		} else {
+			echo "[RESULT] Content Check PASSED.\n";
+		}	
+
+		if(!$siteisonline)
+		{
+			
+				$gl = (int)$GLOBALS['checkurl_failures'];
+				$aa = (int)already_alerted($id,"1")+1;
+				
+				if ($gl == $aa)
+				{
+					send_alert($subject,$body);					
+					if($GLOBALS['disk_helpdesk']) 
+					{
+						send_helpdesk($subject,$body);
+					}
+				}
+				record_url_alert($id,"1");
+			
+		} else {
+			if(already_alerted($id,"1")) 
+			{
+				$subject = '[SERVER MONITOR] ' . $server . ' ' . $id . ' IS BACK ONLINE!';
+				$body .= "URL: " . $id . "\n is back online.\n";				
+				send_alert($subject,$body);
+			}		
+			remove_alerted($id,"1");			
+		}
+
+	
 }
 
 ?>

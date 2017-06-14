@@ -32,6 +32,7 @@ Command line Options
 		vscan 		- Perform Virus Scan
 		purge 		- Purge oldest backup files (db and regular backups), number of days to hold back is
 					  specified in n5mon-config.php
+		checksites -  The same as checkurl below, will check a list of sites specified in the config.
 		checkurl 	- http://domain.com - check's to see the url is returning content and correct status codes. (new not really tested yet)
 					  
 		testemail	- Sends test email(s) to emails specified in config file.

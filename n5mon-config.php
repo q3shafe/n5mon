@@ -102,6 +102,19 @@
 			'1'=>'1.5',
 			'2'=>'1.5'
 			);
+
+	// URL CHECKER ////////////////////////////////////////////////////////////////////////////
+	/*
+		You can specify a list of urls to check to see if they are online and returning a valid 
+		status code.  Specify those urls here in the following format
+			'FriendlyName' => 'http://www.domain.com'
+	*/	
+	$link_urls = array(
+			'N5Networks'=>'http://dev.n5net.com',
+			'N5Hosting'=>'http://n5net.com',
+			);
+
+
 			
 	// WHERE DO BACKUPS GO? //////////////////////////////////////////////////////////////////////////
 	$GLOBALS['backup_dir'] = "/backups/sites/";
