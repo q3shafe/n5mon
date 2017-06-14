@@ -13,6 +13,8 @@ backups and virus scans.  It runs under PHP-CLI either from the command line or 
 It monitors diskspace, running processes and load averages.  N5MON will attempt to restart services that are down or run any commands you specify.  Alerts are 
 sent through email when a problem is found.
 
+You can specify the standnard phpmailer or an SMTP host for alerts.
+
 Installation:
 1) Unpack all files in the archive, be sure they are readable, exectuable and that alerts.dat is writable.
 2) Edit n5mon-config.php with all of your preferences. This options in this file are well documented.

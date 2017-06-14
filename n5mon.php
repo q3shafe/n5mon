@@ -610,13 +610,52 @@ function write_service_log($service,$desc)
 function send_alert($subject, $body)
 {
 	global $GLOBALS;
+
+	echo "[ALERT!] Sending Alert to " . $GLOBALS['alert_email'] . " - " . $subject . "\n"; 
+	echo "[ALERT!] " . $body;
+	$headers = "From: " . $GLOBALS['from_email'] . "\r\n";
 	
-            echo "[ALERT!] Sending Alert to " . $GLOBALS['alert_email'] . " - " . $subject . "\n"; 
-			echo "[ALERT!] " . $body;
-			$headers = "From: " . $GLOBALS['from_email'] . "\r\n";
-			mail($GLOBALS['alert_email'],$subject,$body,$headers);	
-			mail($GLOBALS['sms_email'],$subject,$body,$headers);	
-			// Send sms
+	if($GLOBALS['use_smtp'])
+	{
+		require_once "Mail.php";
+
+		$headers = array ('From' => $GLOBALS['from_email'],
+		   'To' => $GLOBALS['alert_email'],
+		   'Subject' => $subject);
+		
+		 $smtp = Mail::factory('smtp',
+		   array ('host' => $GLOBALS['smtp_host'],
+			 'port' => $GLOBALS['smtp_port'],
+			 'auth' => true,
+			 'username' => $GLOBALS['smtp_user'],
+			 'password' => $GLOBALS['smtp_pass']));
+		 
+		 $mail = $smtp->send($GLOBALS['alert_email'], $headers, $body);
+		 
+		 if (PEAR::isError($mail)) {
+		   $message =  $mail->getMessage();
+		   echo $message;
+		  } else {
+		   echo "[NOTICE] Message Sent!\n";			 
+		  }			
+
+		 $mail = $smtp->send($GLOBALS['sms_email'], $headers, $body);
+		 
+		 if (PEAR::isError($mail)) {
+		   $message =  $mail->getMessage();
+		   echo $message;
+		  } else {
+		   echo "[NOTICE] Message Sent!\n";			 
+		  }			
+
+		  
+			
+	} else {
+		mail($GLOBALS['alert_email'],$subject,$body,$headers);	
+		mail($GLOBALS['sms_email'],$subject,$body,$headers);	
+	}
+			
+			
 			
 }	
 

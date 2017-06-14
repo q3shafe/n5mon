@@ -125,4 +125,20 @@
 	$GLOBALS['db_pass'] = 'password';
 
 	
+	// 	MAILER //////////////////////////////////////////////////////////////////////
+	// If set to 1 you can specify an smtp server (requires pear mail smtp).  If set to 0, it will use php mail to send alerts.
+	$GLOBALS['use_smtp'] = '0';
+	
+	// SMTP hostname
+	$GLOBALS['smtp_host'] = 'ssl://smtp.mailer.com';
+	
+	// SMTP Port
+	$GLOBALS['smtp_port'] = '465';
+	
+	// SMTP Username and Password respectively
+	$GLOBALS['smtp_user'] = 'myusername';
+	$GLOBALS['smtp_pass'] = 'mypassword';
+	
+	
+
 ?>
