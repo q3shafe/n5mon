@@ -13,7 +13,8 @@ TODO
 - checkurl functionality except defined like services are in config.
 */
 
-error_reporting(E_ALL ^ E_WARNING ^ E_NOTICE); // Don't show warnings
+error_reporting(E_ALL ^ E_WARNING ^ E_NOTICE ^ E_DEPRECATED); // Don't show warnings
+
 
 array_shift($argv);
 $action = $argv[0];
@@ -590,21 +591,12 @@ function send_alert($subject, $body)
 		 
 		 $mail = $smtp->send($GLOBALS['alert_email'], $headers, $body);
 		 
-		 if (PEAR::isError($mail)) {
-		   $message =  $mail->getMessage();
-		   echo $message;
-		  } else {
-		   echo "[NOTICE] Message Sent!\n";			 
-		  }			
+ 	   echo "[NOTICE] Message Sent!\n";			 
 
-		 $mail = $smtp->send($GLOBALS['sms_email'], $headers, $body);
-		 
-		 if (PEAR::isError($mail)) {
-		   $message =  $mail->getMessage();
-		   echo $message;
-		  } else {
-		   echo "[NOTICE] Message Sent!\n";			 
-		  }			
+
+		$mail = $smtp->send($GLOBALS['sms_email'], $headers, $body);
+		echo "[NOTICE] Message Sent!\n";			 
+				
 
 		  
 			
