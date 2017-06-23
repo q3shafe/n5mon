@@ -2,7 +2,7 @@
 /* N5 NETWORKS SERVER MONITOR */
 /* brian@n5net */
 include_once("n5mon-config.php");		
-
+require_once("PHPMailerAutoload.php");
 
 /*
 TODO
@@ -576,29 +576,30 @@ function send_alert($subject, $body)
 	
 	if($GLOBALS['use_smtp'])
 	{
-		require_once "Mail.php";
-
-		$headers = array ('From' => $GLOBALS['from_email'],
-		   'To' => $GLOBALS['alert_email'],
-		   'Subject' => $subject);
 		
-		 $smtp = Mail::factory('smtp',
-		   array ('host' => $GLOBALS['smtp_host'],
-			 'port' => $GLOBALS['smtp_port'],
-			 'auth' => true,
-			 'username' => $GLOBALS['smtp_user'],
-			 'password' => $GLOBALS['smtp_pass']));
-		 
-		 $mail = $smtp->send($GLOBALS['alert_email'], $headers, $body);
-		 
- 	   echo "[NOTICE] Message Sent!\n";			 
+		$mail = new PHPMailer(true);	
+		$mail->IsSMTP(); // telling the class to use SMTP
+		$mail->SMTPAuth = true; // enable SMTP authentication
+		$mail->SMTPSecure = "ssl"; // sets the prefix to the servier
+		$mail->Host = $GLOBALS['smtp_host']; // sets GMAIL as the SMTP server
+		$mail->Port = $GLOBALS['smtp_port']; // set the SMTP port for the GMAIL server
+		$mail->Username = $GLOBALS['smtp_user']; // GMAIL username
+		$mail->Password = $GLOBALS['smtp_pass']; // GMAIL password
 
+		$mail->AddAddress( $GLOBALS['alert_email'], "Admin");
+		$mail->SetFrom( $GLOBALS['from_email'], "N5MON");
+		$mail->Subject = $subject;
+		$mail->Body = $body;
 
-		$mail = $smtp->send($GLOBALS['sms_email'], $headers, $body);
-		echo "[NOTICE] Message Sent!\n";			 
-				
+		try{
+			$mail->Send();
+			echo "[NOTICE] Message Sent!\n";			 
+		} catch(Exception $e){
+			//Something went bad
+			echo "[NOTICE] Failure - " . $mail->ErrorInfo;
+	}
+ 	   
 
-		  
 			
 	} else {
 		mail($GLOBALS['alert_email'],$subject,$body,$headers);	

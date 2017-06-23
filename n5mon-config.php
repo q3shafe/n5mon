@@ -143,7 +143,7 @@
 	$GLOBALS['use_smtp'] = '0';
 	
 	// SMTP hostname
-	$GLOBALS['smtp_host'] = 'ssl://smtp.mailer.com';
+	$GLOBALS['smtp_host'] = 'smtp.mailer.com';
 	
 	// SMTP Port
 	$GLOBALS['smtp_port'] = '465';
