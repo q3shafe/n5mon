@@ -633,6 +633,7 @@ function get_url_contents($url){
         curl_setopt ($crl, CURLOPT_URL,$url);
         curl_setopt ($crl, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt ($crl, CURLOPT_CONNECTTIMEOUT, $timeout);
+		curl_setopt ($crl, CURLOPT_TIMEOUT, $timeout);
         $ret = curl_exec($crl);
 		$http_status = curl_getinfo($crl, CURLINFO_HTTP_CODE);				
         curl_close($crl);
