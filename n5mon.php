@@ -38,6 +38,7 @@ $id = $argv[1];
 		echo "	php ./n5mon.php backup - Runs all backups\n";			
 		echo "	php ./n5mon.php dbbackup - Backup and archive all databases\n";			
 		echo "	php ./n5mon.php vscan - Perform Virus Scan\n";			
+		echo "	php ./n5mon.php vscan-clean - Perform Virus Scan and moves infected files to specified quarantine folder\n";			
 		echo "	php ./n5mon.php purge - Purge oldest backup files - saves the last 5\n";					
 		echo "	php ./n5mon.php checksites - The same as checkurl below, will check a list of sites specified in the config.\n";
 		echo "	php ./n5mon.php checkurl http://domain.com - check's to see the url is returning content and correct status codes\n";							
@@ -156,6 +157,40 @@ if($action == "vscan")
 	foreach($scan_dirs as $x => $x_value) {
 		echo "[ACTION] Scanning directory " . $x_value . " for viruses\n";	
 		virus_scan($x_value);
+	}
+}
+
+/* Scan for Viruses and quarantine */
+if($action == "vscan-clean")
+{			
+	 // Update Virus Definitions
+	echo "[ACTION] Updating Virus definitions\n";	
+	$cmdline = "freshclam";
+    system($cmdline);
+	
+	// check that quarantine directory exists if not create it.
+	$qdir = $GLOBALS['qdir'];
+	echo "[NOTICE] Checking if " . $qdir . " exists...\n";	
+	if (!file_exists($qdir) && !is_dir($qdir)) 
+	{	
+		echo "[NOTICE] Quarantine directory, " . $qdir . " does not exist, creating it...\n";	
+		mkdir($qdir);         
+		// double check that it was created
+		if (!file_exists($qdir) && !is_dir($qdir)) 
+		{	
+			echo "[ERROR!] could not create directory, " . $qdir . ".  N5MON is exiting...\n";	
+			
+		} else {
+			echo "[NOTICE] directory, " . $qdir . " Has been created...\n";	
+		}
+	} else {
+		echo "[NOTICE] quaratine folder is ok\n";	
+	}
+		
+	
+	foreach($scan_dirs as $x => $x_value) {
+		echo "[ACTION] Scanning directory " . $x_value . " for viruses [quarantine enabled]\n";	
+		virus_scan_q($x_value);
 	}
 }
 
@@ -456,6 +491,7 @@ function virus_scan($dir)
 
         // Run The Scan
         $cmdline = "clamscan -r -i " . $dir . " > /var/log/" . $today . "_virusscan.log";
+
         //echo $cmdline;
         //echo "\n";
         system($cmdline);
@@ -487,6 +523,53 @@ function virus_scan($dir)
 			echo "[RESULT] " .$subject . "\n";
         }
 }	
+
+/// VIRUS Scans
+function virus_scan_q($dir)
+{
+       $today = date("Y-m-d");
+
+        // Run The Scan
+        $qdir = $GLOBALS['qdir'];
+		$quar = $qdir . $today;
+		// create the dated quaratine folder
+		echo "[NOTICE] Creating new quaratine sub-directory " .$quar . "\n";
+		mkdir($quar);
+		
+		$cmdline = "clamscan -r -i --move=" . $quar . " " . $dir . " > /var/log/" . $today . "_virusscan.log";	
+				
+        echo "[NOTICE] Using command: " . $cmdline;
+        echo "\n";
+        system($cmdline);
+
+        $file = file_get_contents("/var/log/" . $today . "_virusscan.log");
+        //echo $file;
+        //echo "\n";
+        //echo "\n";
+
+        if (strpos($file,'FOUND') == true)
+        {
+			// Virus Found!
+			$server = $GLOBALS['server'];
+			$subject = "[SERVER MONITOR] " . $server . " - ACTION REQUIRED: A virus has been found on the server";
+			$body = "A virus has been found on the server.  I have moved the infected files to " . $quar . " for review.\n\n";
+			$body .= $file;
+			$body .= "\n\nPlease take immediate action and remove these potential threats.";
+			echo "[RESULT] " . $body;
+			echo "\n";
+			send_alert($subject,$body);
+			if($GLOBALS['virus_helpdesk']) 
+			{
+				send_helpdesk($subject,$body);
+			}
+			
+        } else {
+			$subject = "Virus Scan Completed - No Viruses Found";
+			$body = "Virus Scan Completed - No Viruses Found";
+			echo "[RESULT] " .$subject . "\n";
+			echo "\n";
+        }
+}
 
 function remove_alerted($type,$what)
 {

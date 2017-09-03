@@ -82,7 +82,10 @@
 			);
 	// If a virus is found send an email to the helpdesk address?
 	$GLOBALS['virus_helpdesk'] = 1;		
-	
+
+	// Quarantine Directory
+	// This is used with the vscan-clean option
+	$GLOBALS['qdir'] = '/root/.viruses/';
 	
 	// BACKUP DIRECTORY ////////////////////////////////////////////////////////////////////////////
 	/*
