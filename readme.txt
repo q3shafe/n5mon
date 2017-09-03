@@ -1,8 +1,8 @@
 N5MON Simple Monitoring and Maintenance Tool.
-2016 N5 Networks
+2016, 2017 N5 Networks
 Licensed under the GPL v2.0
 http://dev.n5net.com
-support@n5net.com
+helpdesk@n5net.com
 
 requirements: PHP 5.4.x or newer, Curl, ClamAV (for virus scanning).
 
@@ -26,16 +26,16 @@ Command line Options
 	php ./n5mon.php {option}
 	
 	Command line options:
-		monitor 	- Runs all monitors
-		backup 		- Runs all backups
-		dbbackup 	- Backup and archive all databases
-		vscan 		- Perform Virus Scan
-		purge 		- Purge oldest backup files (db and regular backups), number of days to hold back is
-					  specified in n5mon-config.php
-		checksites -  The same as checkurl below, will check a list of sites specified in the config.
-		checkurl 	- http://domain.com - check's to see the url is returning content and correct status codes. (new not really tested yet)
-					  
-		testemail	- Sends test email(s) to emails specified in config file.
+		php ./n5mon.php monitor - Runs all monitors
+        php ./n5mon.php backup - Runs all backups
+        php ./n5mon.php dbbackup - Backup and archive all databases
+        php ./n5mon.php vscan - Perform Virus Scan
+        php ./n5mon.php vscan-clean - Perform Virus Scan and moves infected files to specified quarantine folder
+        php ./n5mon.php purge - Purge oldest backup files - saves the last 5
+        php ./n5mon.php checksites - The same as checkurl below, will check a list of sites specified in the config.
+        php ./n5mon.php checkurl http://domain.com - check's to see the url is returning content and correct status codes
+
+        php ./n5mon.php testemail - Sends a test message to all enabled emails in cfg file
 
 
 					  
