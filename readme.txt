@@ -10,8 +10,8 @@ Overview:
 N5MON is a lightweight, low overhead simple system monitor, maintenance tool for doing simple server monitoring as well as automated local 
 backups and virus scans.  It runs under PHP-CLI either from the command line or from cron.
 
-It monitors diskspace, running processes and load averages.  N5MON will attempt to restart services that are down or run any commands you specify.  Alerts are 
-sent through email when a problem is found.
+It monitors diskspace, running processes and load averages, check urls to make sure the web server is live, and will also check IP addresses against various dnsbl databases.  
+N5MON will attempt to restart services that are down or run any commands you specify.  Alerts are sent through email when a problem is found.
 
 You can specify the standnard phpmailer or an SMTP host for alerts.
 
@@ -34,6 +34,8 @@ Command line Options
         php ./n5mon.php purge - Purge oldest backup files - saves the last 5
         php ./n5mon.php checksites - The same as checkurl below, will check a list of sites specified in the config.
         php ./n5mon.php checkurl http://domain.com - check's to see the url is returning content and correct status codes
+		php ./n5mon.php blacklisted xxx.xxx.xxx.xxx - Check an IP address against a list of email blacklists
+        php ./n5mon.php checkdnsbl - Check same as blacklisted, but will check a list of site specified in the config
 
         php ./n5mon.php testemail - Sends a test message to all enabled emails in cfg file
 

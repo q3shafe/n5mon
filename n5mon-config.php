@@ -118,6 +118,19 @@
 			);
 
 
+
+	// DNSBL CHECKER ////////////////////////////////////////////////////////////////////////////
+	/*
+		You can specify a list of IP Addresses to check to see if they are listed in many of the
+		poular email blacklists.  Specify those IP addresses here in the following format
+			'FriendlyName' => '0.0.0.0'
+	*/	
+	$dnsdb_ips = array(
+			'N5Networks'=>'0.0.0.0',
+			);
+
+
+
 			
 	// WHERE DO BACKUPS GO? //////////////////////////////////////////////////////////////////////////
 	$GLOBALS['backup_dir'] = "/backups/sites/";

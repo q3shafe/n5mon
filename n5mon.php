@@ -42,6 +42,8 @@ $id = $argv[1];
 		echo "	php ./n5mon.php purge - Purge oldest backup files - saves the last 5\n";					
 		echo "	php ./n5mon.php checksites - The same as checkurl below, will check a list of sites specified in the config.\n";
 		echo "	php ./n5mon.php checkurl http://domain.com - check's to see the url is returning content and correct status codes\n";							
+		echo "	php ./n5mon.php blacklisted xxx.xxx.xxx.xxx - Check an IP address against a list of email blacklists\n";
+		echo "	php ./n5mon.php checkdnsbl - Check same as blacklisted, but will check a list of site specified in the config\n";
 		echo "\n";
 		echo "	php ./n5mon.php testemail - Sends a test message to all enabled emails in cfg file\n";							
 		echo "\n";		
@@ -86,6 +88,28 @@ if ($action == "checkurl")
 		checkurl($id);
 }	
 
+
+if ($action == "blacklisted")
+{		
+		// check for url
+		if(!$id)
+		{
+			echo "[ERROR!] No IP Provided, exiting\n";
+			exit;
+		}
+		 echo "[ACTION] Checking IP " . $id . " against DNSDL databases.\n";
+		dnsbllookup($id);
+}	
+
+
+if ($action == "checkdnsbl")
+{
+	foreach($dnsdb_ips as $x => $x_value) 
+	{
+			echo "[ACTION] Checking IP against dnsbl blacklists " . $x . " : ". $x_value . " \n";	
+			dnsbllookup($x_value, $x);
+	}
+}	
 
 if($action == "testemail")
 {
@@ -829,5 +853,59 @@ function checkurl($id)
 
 	
 }
+
+function dnsbllookup($ip, $x)
+{
+    // Add your preferred list of DNSBL's
+    $dnsbl_lookup = [
+        "dnsbl-1.uceprotect.net",
+        "dnsbl-2.uceprotect.net",
+        "dnsbl-3.uceprotect.net",
+        "dnsbl.dronebl.org",
+        "dnsbl.sorbs.net",
+        "zen.spamhaus.org",
+        "bl.spamcop.net",
+        "list.dsbl.org",
+        "sbl.spamhaus.org",
+        "xbl.spamhaus.org"
+    ];
+    $listed = "";
+    if ($ip) {
+        $reverse_ip = implode(".", array_reverse(explode(".", $ip)));
+        foreach ($dnsbl_lookup as $host) {
+            if (checkdnsrr($reverse_ip . "." . $host . ".", "A")) {
+                $listed .= $reverse_ip . "." . $host . " Listed\n";
+            }
+        }
+    }
+    if (empty($listed)) {
+        echo "[RESULT] IP address is not blacklisted\n";
+    } else {
+        echo "[ALERT!] " . $listed . "\n";
+		
+$server = $GLOBALS['server'];
+		$subject = "[SERVER MONITOR] " . $x . " " . $ip . " - ACTION REQUIRED: IP Address is listed on DNSBL blacklist.";
+		$body = "The IP address " . $ip . " has been found on a the following blacklists.\n";
+		$body .= $listed;
+		$body .= "\n\nPlease take immediate action and remedy the issue.";
+		echo "[RESULT] " . $body;
+		echo "\n";
+		send_alert($subject,$body);
+
+    }
+}
+if (isset($_GET['ip']) && $_GET['ip'] != null) {
+    $ip = $_GET['ip'];
+    if (filter_var($ip, FILTER_VALIDATE_IP)) {
+        echo dnsbllookup($ip);
+    } else {
+        echo "[WARNING] IP Address not valid";
+		exit;
+    }
+}
+
+		
+
+
 
 ?>
