@@ -99,6 +99,7 @@ if ($action == "blacklisted")
 		}
 		 echo "[ACTION] Checking IP " . $id . " against DNSDL databases.\n";
 		dnsbllookup($id);
+		exit;
 }	
 
 
@@ -109,6 +110,7 @@ if ($action == "checkdnsbl")
 			echo "[ACTION] Checking IP against dnsbl blacklists " . $x . " : ". $x_value . " \n";	
 			dnsbllookup($x_value, $x);
 	}
+	exit;
 }	
 
 if($action == "testemail")
@@ -226,6 +228,15 @@ if($action == "monitor")
 	echo "[ACTION] RUNNING ALL MONITORS\n";	
 	echo "\n";
 	
+
+	// DNSBL Monitor
+	$server = $GLOBALS['server'];
+	$host= gethostname();
+	$thisIP = gethostbyname($host);
+	echo "[ACTION] Checking IP against DNSDL databases (" . $thisIP . ").\n";
+	dnsbllookup($thisIP, $server);
+	echo "\n";
+
 	// DISK MONITOR
 	$bytes = disk_free_space("/");
 	$si_prefix = array( 'B', 'KB', 'MB', 'GB', 'TB', 'EB', 'ZB', 'YB' );
@@ -900,7 +911,7 @@ if (isset($_GET['ip']) && $_GET['ip'] != null) {
         echo dnsbllookup($ip);
     } else {
         echo "[WARNING] IP Address not valid";
-		exit;
+		//exit;
     }
 }
 

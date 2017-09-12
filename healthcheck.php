@@ -197,6 +197,15 @@ $totalfailures = 0;
 							echo "[RESULT] " . $xtopfive[$x] . "\n";
 							$x++;
 					}
+
+	// DNSBL Monitor
+	$server = $GLOBALS['server'];
+	$host= gethostname();
+	$thisIP = gethostbyname($host);
+	echo "\n";
+	echo "[ACTION] Checking IP against DNSBL databases (" . $thisIP . ").\n";
+	dnsbllookup($thisIP, $server);
+	echo "\n";
 	
 if($action == "dovirus")
 {	
@@ -263,5 +272,52 @@ function virus_scan($dir)
         }
 }	
 
+function dnsbllookup($ip, $x)
+{
+global $totalfailures;
+    // Add your preferred list of DNSBL's
+    $dnsbl_lookup = [
+        "dnsbl-1.uceprotect.net",
+        "dnsbl-2.uceprotect.net",
+        "dnsbl-3.uceprotect.net",
+        "dnsbl.dronebl.org",
+        "dnsbl.sorbs.net",
+        "zen.spamhaus.org",
+        "bl.spamcop.net",
+        "list.dsbl.org",
+        "sbl.spamhaus.org",
+        "xbl.spamhaus.org"
+    ];
+    $listed = "";
+    if ($ip) {
+        $reverse_ip = implode(".", array_reverse(explode(".", $ip)));
+        foreach ($dnsbl_lookup as $host) {
+            if (checkdnsrr($reverse_ip . "." . $host . ".", "A")) {
+                $listed .= $reverse_ip . "." . $host . " Listed\n";
+            }
+        }
+    }
+    if (empty($listed)) {
+        echo "[RESULT] IP address is not blacklisted\n";
+    } else {
+        echo "[ALERT!] " . $listed . "\n";
+		$totalfailures++;
+		$server = $GLOBALS['server'];
+		$subject = "[SERVER MONITOR] " . $x . " " . $ip . " - ACTION REQUIRED: IP Address is listed on DNSBL blacklist.";
+		echo "\n";
+
+
+    }
+}
+if (isset($_GET['ip']) && $_GET['ip'] != null) {
+    $ip = $_GET['ip'];
+    if (filter_var($ip, FILTER_VALIDATE_IP)) {
+        echo dnsbllookup($ip);
+    } else {
+        echo "[WARNING] IP Address not valid";
+		//exit;
+    }
+ 
+}
 
 ?>
