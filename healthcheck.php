@@ -34,8 +34,8 @@ $totalfailures = 0;
 	$str   = @file_get_contents('/proc/uptime');
 	$num   = floatval($str);
 	$secs  = fmod($num, 60); $num = (int)($num / 60);
-	$mins  = $num % 60;      $num = (int)($num / 60);
-	$hours = $num % 24;      $num = (int)($num / 24);
+	$mins  = $num % 60; $num = (int)($num / 60);
+	$hours = $num % 24; $num = (int)($num / 24);
 	$days  = $num;
 	
 	echo "[NOTICE] System has been up for " . $days . " days, " . $hours . " hours, " . $mins . " minutes and " . $secs . " seconds. \n";
@@ -44,7 +44,7 @@ $totalfailures = 0;
 	
 	// System Memory
 	echo "[ACTION] Checking System Memory \n";
-	 $fh = fopen('/proc/meminfo','r');
+	 $fh = fopen('/proc/meminfo', 'r');
 	$mem = 0;
 	while ($line = fgets($fh)) {
 		
@@ -68,9 +68,9 @@ $totalfailures = 0;
 	// DISK MONITOR
 	$bytes = disk_free_space("/");
 	$si_prefix = array( 'B', 'KB', 'MB', 'GB', 'TB', 'EB', 'ZB', 'YB' );
-    $base = 1024;
-    $class = min((int)log($bytes , $base) , count($si_prefix) - 1);
-    $gb_free = sprintf('%1.2f' , $bytes / pow($base,3));
+	$base = 1024;
+	$class = min((int)log($bytes , $base) , count($si_prefix) - 1);
+	$gb_free = sprintf('%1.2f' , $bytes / pow($base,3));
 	
 	//echo $gb_free . " FREE\n\n";
 	echo "\n";
@@ -91,10 +91,10 @@ $totalfailures = 0;
 	// END DISK MONITOR
 
 			
-	foreach($processes as $x => $x_value) {
+	foreach ($processes as $x => $x_value) {
 		echo "[ACTION] Checking Process: " . $x . "\n";	
 		exec("ps aux | grep " . $x_value, $pids);
-		if(!$pids[2]) {
+		if (!$pids[2]) {
 			// attempt to restart then check again
 			echo "[RESULT] FAILED! service " . $x . " (" . $x_value . ") is NOT running.\n";
 			$totalfailures++;
@@ -113,30 +113,30 @@ $totalfailures = 0;
 	
 	// LOAD Averages 1, 5 and 15
 	$load = sys_getloadavg();
-	$doload=1;
+	$doload = 1;
 	unset($pids);
 	exec("ps aux | grep gzip", $pids);
-	if($pids[2]) {		
+	if ($pids[2]) {		
 		$doload = 0;
 	}
 	unset($pids);
 	exec("ps aux | grep clamscan", $pids);
-	if($pids[2]) {		
+	if ($pids[2]) {		
 		$doload = 0;
 	}
 	
-	if($doload) {
+	if ($doload) {
 	
 		// 5 minute load
 		echo "[ACTION] Checking 1 Minute load average\n";	
-		if($load[0] > $load_limits[0])
+		if ($load[0]>$load_limits[0])
 		{
 					$totalfailures++;
 					echo "[RESULT] FAILED! 1 minute load average is above " . $load_limits[0] . ", currently . " . $load[0] . "\n";
 					exec("ps aux | sort -nrk 3,3 | head -n 5", $topfive);
-					$x=0;
-					$y=count($topfive);
-					while($x<$y) {
+					$x = 0;
+					$y = count($topfive);
+					while ($x<$y) {
 							//echo $topfive[$x] . "\n";
 							$x++;
 					}
@@ -148,13 +148,13 @@ $totalfailures = 0;
 		}
 		echo"\n";
 		echo "[ACTION] Checking 5 Minute load average\n";	
-		if($load[1] > $load_limits[1])
+		if ($load[1]>$load_limits[1])
 		{
 					echo "[RESULT] FAILED! 5 minute load average is above " . $load_limits[1] . ", currently . " . $load[1] . "\n";
 					$totalfailures++;
-					$x=0;
-					$y=count($topfive);
-					while($x<$y) {
+					$x = 0;
+					$y = count($topfive);
+					while ($x<$y) {
 							$body .= $topfive[$x] . "\n";
 							$x++;
 					}
@@ -165,13 +165,13 @@ $totalfailures = 0;
 		}
 		echo"\n";
 		echo "[ACTION] Checking 15 Minute load average\n";	
-		if($load[2] > $load_limits[2])
+		if ($load[2]>$load_limits[2])
 		{
 					echo "[RESULT] FAILED! 15 minute load average is above " . $load_limits[2] . ", currently . " . $load[2] . "\n";
 					$totalfailures++;
-					$x=0;
-					$y=count($topfive);
-					while($x<$y) {
+					$x = 0;
+					$y = count($topfive);
+					while ($x<$y) {
 							$body .= $topfive[$x] . "\n";
 							$x++;
 					}
@@ -191,23 +191,23 @@ $totalfailures = 0;
 	// ps -eo pmem,pcpu,pid,user,args | sort -k 1 -r | head -6|sed 's/$/\n/'
 	echo "[ACTION] Showing processes using the most CPU. \n";
 	exec("ps -eo pcpu,pid,user,args | sort -k 1 -r | head -6", $xtopfive);
-					$x=0;
-					$y=count($topfive);
-					while($x<$y) {
+					$x = 0;
+					$y = count($topfive);
+					while ($x<$y) {
 							echo "[RESULT] " . $xtopfive[$x] . "\n";
 							$x++;
 					}
 
 	// DNSBL Monitor
 	$server = $GLOBALS['server'];
-	$host= gethostname();
+	$host = gethostname();
 	$thisIP = gethostbyname($host);
 	echo "\n";
 	echo "[ACTION] Checking IP against DNSBL databases (" . $thisIP . ").\n";
 	dnsbllookup($thisIP, $server);
 	echo "\n";
 	
-if($action == "dovirus")
+if ($action == "dovirus")
 {	
 	echo "\n";
 	echo "[NOTICE] Preparing for quick virus scan.  This may take some time. \n";
@@ -220,9 +220,9 @@ if($action == "dovirus")
 	 // Update Virus Definitions
 	echo "[ACTION] Updating Virus definitions\n";	
 	$cmdline = "freshclam";
-    system($cmdline);
+	system($cmdline);
 	
-	foreach($scan_dirs as $x => $x_value) {
+	foreach ($scan_dirs as $x => $x_value) {
 		echo "[ACTION] Scanning directory " . $x_value . " for viruses\n";	
 		virus_scan($x_value);
 	}
@@ -232,7 +232,7 @@ if($action == "dovirus")
 	echo "\n\n";
 	echo "[NOTICE] **** All tests have been completed. ****\n\n";
 
-	if($totalfailures)
+	if ($totalfailures)
 	{
 		echo "[ALERT!] PROBLEMS FOUND! THERE WHERE " . $totalfailures . " ISSUES FOUND.\n";
 	} else {
@@ -243,21 +243,21 @@ if($action == "dovirus")
 /// VIRUS Scans
 function virus_scan($dir)
 {
-       $today = date("Y-m-d");
+	   $today = date("Y-m-d");
 
-        // Run The Scan
-        $cmdline = "clamscan -r -i " . $dir . " > /var/log/" . $today . "_virusscan.log";
-        //echo $cmdline;
-        //echo "\n";
-        system($cmdline);
+		// Run The Scan
+		$cmdline = "clamscan -r -i " . $dir . " > /var/log/" . $today . "_virusscan.log";
+		//echo $cmdline;
+		//echo "\n";
+		system($cmdline);
 
-        $file = file_get_contents("/var/log/" . $today . "_virusscan.log");
-        //echo $file;
-        //echo "\n";
-        //echo "\n";
+		$file = file_get_contents("/var/log/" . $today . "_virusscan.log");
+		//echo $file;
+		//echo "\n";
+		//echo "\n";
 
-        if (strpos($file,'FOUND') == true)
-        {
+		if (strpos($file,'FOUND') == true)
+		{
 			// Virus Found!
 			$totalfailures++;
 			$server = $GLOBALS['server'];
@@ -266,57 +266,57 @@ function virus_scan($dir)
 			echo "[RESULT] " . $body;
 			//echo "\n";
 			
-        } else {
+		} else {
 			$subject = "Virus Scan Completed - No Viruses Found";
 			echo "[RESULT] " .$subject . "\n";
-        }
+		}
 }	
 
 function dnsbllookup($ip, $x)
 {
 global $totalfailures;
-    // Add your preferred list of DNSBL's
-    $dnsbl_lookup = [
-        "dnsbl-1.uceprotect.net",
-        "dnsbl-2.uceprotect.net",
-        "dnsbl-3.uceprotect.net",
-        "dnsbl.dronebl.org",
-        "dnsbl.sorbs.net",
-        "zen.spamhaus.org",
-        "bl.spamcop.net",
-        "list.dsbl.org",
-        "sbl.spamhaus.org",
-        "xbl.spamhaus.org"
-    ];
-    $listed = "";
-    if ($ip) {
-        $reverse_ip = implode(".", array_reverse(explode(".", $ip)));
-        foreach ($dnsbl_lookup as $host) {
-            if (checkdnsrr($reverse_ip . "." . $host . ".", "A")) {
-                $listed .= $reverse_ip . "." . $host . " Listed\n";
-            }
-        }
-    }
-    if (empty($listed)) {
-        echo "[RESULT] IP address is not blacklisted\n";
-    } else {
-        echo "[ALERT!] " . $listed . "\n";
+	// Add your preferred list of DNSBL's
+	$dnsbl_lookup = [
+		"dnsbl-1.uceprotect.net",
+		"dnsbl-2.uceprotect.net",
+		"dnsbl-3.uceprotect.net",
+		"dnsbl.dronebl.org",
+		"dnsbl.sorbs.net",
+		"zen.spamhaus.org",
+		"bl.spamcop.net",
+		"list.dsbl.org",
+		"sbl.spamhaus.org",
+		"xbl.spamhaus.org"
+	];
+	$listed = "";
+	if ($ip) {
+		$reverse_ip = implode(".", array_reverse(explode(".", $ip)));
+		foreach ($dnsbl_lookup as $host) {
+			if (checkdnsrr($reverse_ip . "." . $host . ".", "A")) {
+				$listed .= $reverse_ip . "." . $host . " Listed\n";
+			}
+		}
+	}
+	if (empty($listed)) {
+		echo "[RESULT] IP address is not blacklisted\n";
+	} else {
+		echo "[ALERT!] " . $listed . "\n";
 		$totalfailures++;
 		$server = $GLOBALS['server'];
 		$subject = "[SERVER MONITOR] " . $x . " " . $ip . " - ACTION REQUIRED: IP Address is listed on DNSBL blacklist.";
 		echo "\n";
 
 
-    }
+	}
 }
 if (isset($_GET['ip']) && $_GET['ip'] != null) {
-    $ip = $_GET['ip'];
-    if (filter_var($ip, FILTER_VALIDATE_IP)) {
-        echo dnsbllookup($ip);
-    } else {
-        echo "[WARNING] IP Address not valid";
+	$ip = $_GET['ip'];
+	if (filter_var($ip, FILTER_VALIDATE_IP)) {
+		echo dnsbllookup($ip);
+	} else {
+		echo "[WARNING] IP Address not valid";
 		//exit;
-    }
+	}
  
 }
 
