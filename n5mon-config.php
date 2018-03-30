@@ -16,7 +16,7 @@
 
 
 	// NOTIFICATION EMAILS	///////////////////////////////////////////////////////////////////
-	$GLOBALS['sms_email'] = "5555551212@tmomail.net";  // This is simply a secondary email, I use an email to sms gateway
+	$GLOBALS['sms_email'] = "5555551212@tmomail.net"; // This is simply a secondary email, I use an email to sms gateway
 	$GLOBALS['alert_email'] = "me@domain.com";
 	$GLOBALS['helpdesk_email'] = "helpdesk@domain.com";
 
