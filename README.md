@@ -40,6 +40,7 @@ N5MON is a lightweight, low-overhead system monitoring and maintenance tool for 
 ## Features
 
 - **System Monitoring**: Monitors disk space, running processes, and load averages
+- **Load Management**: Automatically executes commands when load averages exceed thresholds
 - **Service Management**: Attempts to restart services that are down or run any commands you specify
 - **Web Monitoring**: Checks URLs to ensure web servers are responding correctly
 - **Blacklist Monitoring**: Checks IP addresses against various DNSBL databases
@@ -52,7 +53,7 @@ N5MON is a lightweight, low-overhead system monitoring and maintenance tool for 
 
 1. Clone or download the repository to your server:
    ```bash
-   git clone https://github.com/yourusername/n5mon.git
+   git clone https://github.com/q3shafe/n5mon.git
    cd n5mon
    ```
 
@@ -78,12 +79,32 @@ The `n5mon-config.php` file contains all configuration options:
 - Server identification settings
 - Email notification settings
 - Service monitoring configuration
+- Load management commands and thresholds
 - Backup directories and retention
 - Virus scan settings
 - Database connection details
 - SMTP configuration for email alerts
 
 Each option is documented in the configuration file. For additional help, visit http://support.n5net.com.
+
+### Load Management Configuration
+
+N5MON can automatically execute commands when load averages exceed configured thresholds. This is configured using the following options in `n5mon-config.php`:
+
+```php
+// Load management commands for each time period (1, 5, 15 minutes)
+$GLOBALS['load_commands'] = array(
+    '0' => array('killall -9 chrome'), // Commands for 1 minute high load
+    '1' => array('service restart apache2'), // Commands for 5 minute high load
+    '2' => array('echo "High load detected" > /var/log/load_alert.log') // Commands for 15 minute high load
+);
+
+// Send email to helpdesk when load management commands are executed
+$GLOBALS['load_helpdesk'] = 1;
+
+// Time to wait after executing load management commands before rechecking (in seconds)
+$GLOBALS['load_command_wait'] = 30;
+```
 
 ## Usage
 
@@ -97,7 +118,7 @@ php ./n5mon.php [option]
 
 | Command | Description |
 |---------|-------------|
-| `php ./n5mon.php monitor` | Runs all monitors |
+| `php ./n5mon.php monitor` | Runs all monitors (including load management) |
 | `php ./n5mon.php backup` | Runs all backups |
 | `php ./n5mon.php dbbackup` | Backup and archive all databases |
 | `php ./n5mon.php vscan` | Perform Virus Scan |

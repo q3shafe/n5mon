@@ -103,6 +103,24 @@
     '2'=>'1.5'
 );
 
+// LOAD MANAGEMENT COMMANDS    /////////////////////////////////////////////////////////////
+/* 
+    These commands will be executed when load average is high.
+    The format is an array of commands for each time period (1, 5, 15 minutes).
+    Example: array('killall -9 chrome', 'service restart apache2')
+*/
+ $GLOBALS['load_commands'] = array(
+    '0' => array('service restart apache2'), // Commands for 1 minute high load
+    '1' => array('echo "High load detected" > /var/log/load_alert.log'), // Commands for 5 minute high load
+    '2' => array('echo "High load detected" > /var/log/load_alert.log') // Commands for 15 minute high load
+);
+
+// Send email to helpdesk in the event load management commands are executed
+ $GLOBALS['load_helpdesk'] = 1;
+
+// Time to wait after executing load management commands before rechecking (in seconds)
+ $GLOBALS['load_command_wait'] = 30;
+
 // URL CHECKER ////////////////////////////////////////////////////////////////////////////
 /*
     You can specify a list of urls to check to see if they are online and returning a valid 
